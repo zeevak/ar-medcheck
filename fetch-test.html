@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkpoint 1 — Live FDA Data</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="wrap">
+    <p class="eyebrow">Phase 1 · Checkpoint</p>
+    <h1>Live Data Pipeline Test</h1>
+    <p class="sub">
+      Confirms we can reach the openFDA Drug Enforcement Reports API and
+      parse real recall data — before any 3D or AR work begins.
+    </p>
+
+    <div id="statusBadge" class="status pending">
+      <span class="dot"></span> Not run yet
+    </div>
+
+    <br /><br />
+
+    <button id="runBtn">Fetch Live Recall Data</button>
+
+    <div id="output" style="margin-top: 20px;"></div>
+  </div>
+
+  <script src="js/fda-fetch.js"></script>
+  <script>
+    const btn = document.getElementById("runBtn");
+    const output = document.getElementById("output");
+    const badge = document.getElementById("statusBadge");
+
+    function setBadge(state, text) {
+      badge.className = `status ${state}`;
+      badge.innerHTML = `<span class="dot"></span> ${text}`;
+    }
+
+    btn.addEventListener("click", async () => {
+      btn.disabled = true;
+      setBadge("pending", "Fetching…");
+      output.innerHTML = "";
+
+      try {
+        // Fetch a general batch of recent enforcement reports.
+        const records = await fetchRecalls({ limit: 8 });
+
+        console.log("openFDA raw response mapped:", records);
+
+        if (records.length === 0) {
+          setBadge("ok", "Connected — 0 results for this query");
+          output.innerHTML = "<p>API reachable, but no records matched.</p>";
+        } else {
+          setBadge("ok", `Connected — ${records.length} records`);
+          output.innerHTML = records
+            .map(
+              (r) => `
+              <div class="result-item">
+                <strong>${r.product}</strong><br/>
+                <span style="color:var(--muted)">${r.reason}</span><br/>
+                <span style="color:var(--muted)">Status: ${r.status} · Class: ${r.classification} · ${r.date}</span>
+              </div>`
+            )
+            .join("");
+        }
+      } catch (err) {
+        console.error(err);
+        setBadge("bad", "Fetch failed — see console");
+        output.innerHTML = `<p style="color:var(--alert)">${err.message}</p>`;
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

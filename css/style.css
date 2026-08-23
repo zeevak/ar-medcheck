@@ -1,0 +1,131 @@
+:root {
+  --ink: #10261e;
+  --paper: #f6f8f6;
+  --panel: #ffffff;
+  --line: #d7e0da;
+  --safe: #1f7a4d;
+  --alert: #c23b3b;
+  --accent: #0f6b5c;
+  --muted: #5c6b64;
+  --radius: 10px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.5;
+}
+
+.wrap {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 28px 20px 60px;
+}
+
+.eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+  margin: 0 0 6px;
+}
+
+h1 {
+  font-size: 28px;
+  margin: 0 0 8px;
+  letter-spacing: -0.01em;
+}
+
+.sub {
+  color: var(--muted);
+  margin: 0 0 28px;
+  font-size: 15px;
+}
+
+.card {
+  display: block;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 12px;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.card .tag {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.card .title {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.card .desc {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+  margin-top: 8px;
+}
+
+.status.ok { background: #e6f4ec; color: var(--safe); }
+.status.bad { background: #fbe9e9; color: var(--alert); }
+.status.pending { background: #eef1f0; color: var(--muted); }
+
+.dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+button, .btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  padding: 12px 18px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+}
+
+button:disabled { opacity: 0.5; }
+
+pre {
+  background: #0f1a16;
+  color: #cfe8dc;
+  padding: 14px;
+  border-radius: var(--radius);
+  overflow-x: auto;
+  font-size: 12px;
+  max-height: 320px;
+}
+
+.result-item {
+  border-left: 3px solid var(--line);
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  background: var(--panel);
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.result-item.flag { border-left-color: var(--alert); }
