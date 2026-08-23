@@ -33,6 +33,9 @@
       padding: 24px; font-family: -apple-system, sans-serif;
     }
     #unsupported.hidden { display: none; }
+    /* Guards against the Start-AR button rendering underneath our overlay
+       divs, which sit at the same bottom-of-screen position. */
+    #ARButton { z-index: 1000 !important; }
   </style>
 </head>
 <body>
@@ -57,14 +60,39 @@
     </div>
   </div>
 
+  <script>
+    // Runs immediately, independent of the module below — catches the case
+    // where the module fails to even load (blocked import, offline CDN, etc).
+    window.__arModuleStarted = false;
+    setTimeout(() => {
+      if (!window.__arModuleStarted) {
+        const hintEl = document.getElementById("hint");
+        hintEl.textContent = "AR module failed to load — check internet connection or try a different browser (see below for details)";
+        hintEl.style.background = "rgba(194,59,59,0.9)";
+      }
+    }, 6000);
+  </script>
+
   <script src="js/fda-fetch.js"></script>
   <script type="module">
+    window.__arModuleStarted = true;
+
     import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
     import { ARButton } from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/webxr/ARButton.js";
     import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js";
 
     const hintEl = document.getElementById("hint");
     const unsupportedEl = document.getElementById("unsupported");
+
+    // Surface any runtime error directly on-screen instead of failing silently.
+    window.addEventListener("error", (e) => {
+      hintEl.textContent = "JS Error: " + e.message;
+      hintEl.style.background = "rgba(194,59,59,0.9)";
+    });
+    window.addEventListener("unhandledrejection", (e) => {
+      hintEl.textContent = "Promise error: " + (e.reason?.message || e.reason);
+      hintEl.style.background = "rgba(194,59,59,0.9)";
+    });
 
     // The "medicine cabinet" we track: names must be lowercase substrings
     // that could plausibly appear in an openFDA product_description.
