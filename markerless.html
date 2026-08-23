@@ -2,16 +2,230 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Markerless AR — AR MedCheck</title>
   <link rel="stylesheet" href="css/style.css" />
+  <style>
+    body { margin: 0; overflow: hidden; background: #10261e; }
+    #overlay {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+      padding: 14px 16px; background: rgba(15,26,22,0.85); color: #fff;
+      font-family: -apple-system, sans-serif; font-size: 13px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    #overlay a { color: #9fe3c3; text-decoration: none; font-weight: 600; }
+    #legend {
+      position: fixed; bottom: 90px; left: 16px; z-index: 10;
+      background: rgba(15,26,22,0.85); color: #fff; border-radius: 10px;
+      padding: 10px 14px; font-family: -apple-system, sans-serif; font-size: 12px;
+    }
+    #legend div { display: flex; align-items: center; gap: 6px; margin: 3px 0; }
+    #legend .sw { width: 10px; height: 10px; border-radius: 50%; }
+    #hint {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      z-index: 10; background: rgba(15,26,22,0.85); color: #fff;
+      padding: 8px 16px; border-radius: 999px; font-family: -apple-system, sans-serif;
+      font-size: 12px;
+    }
+    #unsupported {
+      position: fixed; inset: 0; z-index: 20; background: #10261e; color: #fff;
+      display: flex; align-items: center; justify-content: center; text-align: center;
+      padding: 24px; font-family: -apple-system, sans-serif;
+    }
+    #unsupported.hidden { display: none; }
+  </style>
 </head>
 <body>
-  <div class="wrap">
-    <p class="eyebrow">Phase 4–5</p>
-    <h1>Markerless AR + Live Data</h1>
-    <p class="sub">Placeholder — WebXR hit-test scene + FDA data binding goes here next.</p>
-    <a class="btn" href="index.html">&larr; Back</a>
+  <div id="overlay">
+    <span>Tap a surface to place the shelf</span>
+    <a href="index.html">&larr; Menu</a>
   </div>
+
+  <div id="legend">
+    <div><span class="sw" style="background:#1f7a4d"></span> No active recall</div>
+    <div><span class="sw" style="background:#c23b3b"></span> Recall flagged (live FDA data)</div>
+  </div>
+
+  <div id="hint">Loading recall data…</div>
+
+  <div id="unsupported" class="hidden">
+    <div>
+      <h2>WebXR AR not supported on this device/browser</h2>
+      <p>Markerless hit-test AR needs Chrome for Android with ARCore.<br/>
+      Try opening this page on an Android phone in Chrome.</p>
+      <a href="index.html" style="color:#9fe3c3">&larr; Back to menu</a>
+    </div>
+  </div>
+
+  <script src="js/fda-fetch.js"></script>
+  <script type="module">
+    import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+    import { ARButton } from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/webxr/ARButton.js";
+    import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js";
+
+    const hintEl = document.getElementById("hint");
+    const unsupportedEl = document.getElementById("unsupported");
+
+    // The "medicine cabinet" we track: names must be lowercase substrings
+    // that could plausibly appear in an openFDA product_description.
+    const TRACKED_PRODUCTS = ["ibuprofen", "acetaminophen", "amoxicillin"];
+    let recallFlags = {}; // productName -> boolean, filled in by loadRecallData()
+
+    // ---- Basic WebXR support check before doing anything else ----
+    if (!navigator.xr) {
+      unsupportedEl.classList.remove("hidden");
+    } else {
+      navigator.xr.isSessionSupported("immersive-ar").then((supported) => {
+        if (!supported) unsupportedEl.classList.remove("hidden");
+        else init();
+      });
+    }
+
+    async function loadRecallData() {
+      try {
+        const records = await fetchRecalls({ limit: 20 });
+        recallFlags = matchRecalledProducts(TRACKED_PRODUCTS, records);
+        console.log("Recall flags:", recallFlags);
+        hintEl.textContent = "Data loaded — tap a surface to place the shelf";
+      } catch (err) {
+        console.error("FDA fetch failed, defaulting to all-safe state:", err);
+        // Fail-safe default: if the live API is unreachable, don't block the
+        // AR demo — assume no known recalls rather than crashing the scene.
+        TRACKED_PRODUCTS.forEach((p) => (recallFlags[p] = false));
+        hintEl.textContent = "Live data unavailable — showing default state";
+      }
+    }
+
+    function init() {
+      loadRecallData();
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(
+        70, window.innerWidth / window.innerHeight, 0.01, 20
+      );
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.xr.enabled = true;
+      document.body.appendChild(renderer.domElement);
+
+      document.body.appendChild(
+        ARButton.createButton(renderer, { requiredFeatures: ["hit-test"] })
+      );
+
+      const light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.2);
+      light.position.set(0.5, 1, 0.25);
+      scene.add(light);
+
+      // ---- Reticle: shows where content will be placed ----
+      const reticle = new THREE.Mesh(
+        new THREE.RingGeometry(0.06, 0.08, 32).rotateX(-Math.PI / 2),
+        new THREE.MeshBasicMaterial({ color: 0x0f6b5c })
+      );
+      reticle.matrixAutoUpdate = false;
+      reticle.visible = false;
+      scene.add(reticle);
+
+      const loader = new GLTFLoader();
+
+      function buildShelfGroup() {
+        const group = new THREE.Group();
+
+        // Shelf base — tries to load your optimized model; falls back to a
+        // simple box so the scene always works even before shelf.glb exists.
+        loader.load(
+          "assets/models/shelf.glb",
+          (gltf) => {
+            gltf.scene.scale.set(0.3, 0.3, 0.3);
+            group.add(gltf.scene);
+          },
+          undefined,
+          () => {
+            const base = new THREE.Mesh(
+              new THREE.BoxGeometry(0.4, 0.03, 0.15),
+              new THREE.MeshStandardMaterial({ color: 0xd7cba6 })
+            );
+            base.position.y = 0.05;
+            group.add(base);
+          }
+        );
+
+        // One indicator "bottle" per tracked product, colored by recall status.
+        TRACKED_PRODUCTS.forEach((name, i) => {
+          const isRecalled = !!recallFlags[name];
+          const bottle = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.025, 0.025, 0.08, 16),
+            new THREE.MeshStandardMaterial({
+              color: isRecalled ? 0xc23b3b : 0x1f7a4d,
+            })
+          );
+          const spread = (i - (TRACKED_PRODUCTS.length - 1) / 2) * 0.11;
+          bottle.position.set(spread, 0.11, 0);
+          bottle.userData.product = name;
+          bottle.userData.recalled = isRecalled;
+          group.add(bottle);
+        });
+
+        return group;
+      }
+
+      let hitTestSource = null;
+      let hitTestSourceRequested = false;
+
+      controllerSetup();
+      function controllerSetup() {
+        const controller = renderer.xr.getController(0);
+        controller.addEventListener("select", () => {
+          if (!reticle.visible) return;
+          const shelf = buildShelfGroup();
+          shelf.position.setFromMatrixPosition(reticle.matrix);
+          shelf.quaternion.setFromRotationMatrix(reticle.matrix);
+          scene.add(shelf);
+        });
+        scene.add(controller);
+      }
+
+      renderer.setAnimationLoop((timestamp, frame) => {
+        if (frame) {
+          const referenceSpace = renderer.xr.getReferenceSpace();
+          const session = renderer.xr.getSession();
+
+          if (!hitTestSourceRequested) {
+            session.requestReferenceSpace("viewer").then((refSpace) => {
+              session.requestHitTestSource({ space: refSpace }).then((source) => {
+                hitTestSource = source;
+              });
+            });
+            session.addEventListener("end", () => {
+              hitTestSourceRequested = false;
+              hitTestSource = null;
+            });
+            hitTestSourceRequested = true;
+          }
+
+          if (hitTestSource) {
+            const hitTestResults = frame.getHitTestResults(hitTestSource);
+            if (hitTestResults.length) {
+              const hit = hitTestResults[0];
+              reticle.visible = true;
+              reticle.matrix.fromArray(
+                hit.getPose(referenceSpace).transform.matrix
+              );
+            } else {
+              reticle.visible = false;
+            }
+          }
+        }
+        renderer.render(scene, camera);
+      });
+
+      window.addEventListener("resize", () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+    }
+  </script>
 </body>
 </html>
