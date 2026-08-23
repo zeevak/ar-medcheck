@@ -52,8 +52,8 @@ assets/markers/           Marker pattern images go here
 
 ## Status
 - [x] Phase 1: Repo, GitHub Pages hosting, live FDA fetch checkpoint
-- [ ] Phase 2: Optimized 3D models (glTF) added to assets/models
-- [ ] Phase 3: Marker-based AR (AR.js) working on marker.html
+- [ ] Phase 2: Optimized 3D models (glTF) added to assets/models — download from poly.pizza, run gltf-transform, screenshot the file-size before/after for the report
+- [x] Phase 3: Marker-based AR (AR.js) scene built on marker.html — works with fallback primitives now, swap in pill-bottle.glb when ready
 - [ ] Phase 4: Markerless AR (WebXR hit-test) working on markerless.html
 - [ ] Phase 5: Live FDA data driving bottle color state
 - [ ] Phase 6: UI polish, animation, lighting, audio

@@ -2,16 +2,89 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Marker-Based AR — AR MedCheck</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.js"></script>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    #overlay {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+      padding: 14px 16px; background: rgba(15,26,22,0.85); color: #fff;
+      font-family: -apple-system, sans-serif; font-size: 13px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    #overlay a { color: #9fe3c3; text-decoration: none; font-weight: 600; }
+    #status {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      z-index: 999; background: rgba(15,26,22,0.85); color: #fff;
+      padding: 8px 16px; border-radius: 999px; font-family: -apple-system, sans-serif;
+      font-size: 12px;
+    }
+  </style>
 </head>
 <body>
-  <div class="wrap">
-    <p class="eyebrow">Phase 3</p>
-    <h1>Marker-Based AR</h1>
-    <p class="sub">Placeholder — AR.js + A-Frame scene goes here next.</p>
-    <a class="btn" href="index.html">&larr; Back</a>
+  <div id="overlay">
+    <span>Point camera at the Hiro marker</span>
+    <a href="index.html">&larr; Menu</a>
   </div>
+  <div id="status">Marker not detected</div>
+
+  <a-scene
+    embedded
+    arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix;"
+    vr-mode-ui="enabled: false"
+    renderer="logarithmicDepthBuffer: true;"
+  >
+    <a-assets>
+      <!-- Swap this src once your optimized model is in assets/models/ -->
+      <a-asset-item id="bottle-model" src="assets/models/pill-bottle.glb"></a-asset-item>
+      <audio id="scan-sound" src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/examples/image-tracking/nft/trex/trex.mp3" preload="auto"></audio>
+    </a-assets>
+
+    <a-marker preset="hiro" id="hiro-marker" emitevents="true">
+      <!-- Real model (activate once pill-bottle.glb exists in assets/models/) -->
+      <a-entity
+        gltf-model="#bottle-model"
+        scale="0.4 0.4 0.4"
+        position="0 0 0"
+        animation="property: rotation; to: 0 360 0; loop: true; dur: 6000; easing: linear"
+      ></a-entity>
+
+      <!-- Fallback primitive so the scene is visibly working even before the
+           model file is added — comment this a-entity out once your glTF loads. -->
+      <a-entity
+        geometry="primitive: cylinder; radius: 0.25; height: 0.6"
+        material="color: #e8e2d0"
+        position="0 0.3 0"
+        animation="property: rotation; to: 0 360 0; loop: true; dur: 6000; easing: linear"
+      ></a-entity>
+      <a-entity
+        geometry="primitive: cylinder; radius: 0.27; height: 0.12"
+        material="color: #0f6b5c"
+        position="0 0.65 0"
+      ></a-entity>
+    </a-marker>
+
+    <a-entity camera></a-entity>
+  </a-scene>
+
+  <script>
+    const marker = document.getElementById("hiro-marker");
+    const statusEl = document.getElementById("status");
+    const sound = document.getElementById("scan-sound");
+
+    marker.addEventListener("markerFound", () => {
+      statusEl.textContent = "Marker detected — prescription label recognized";
+      statusEl.style.background = "rgba(31,122,77,0.9)";
+      // Optional audio cue — comment out if the placeholder file feels wrong for your demo.
+      // sound.play();
+    });
+
+    marker.addEventListener("markerLost", () => {
+      statusEl.textContent = "Marker not detected";
+      statusEl.style.background = "rgba(15,26,22,0.85)";
+    });
+  </script>
 </body>
 </html>
