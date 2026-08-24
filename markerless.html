@@ -47,6 +47,7 @@
   <div id="legend">
     <div><span class="sw" style="background:#1f7a4d"></span> No active recall</div>
     <div><span class="sw" style="background:#c23b3b"></span> Recall flagged (live FDA data)</div>
+    <div id="liveStatus" style="margin-top:8px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.15); font-size:11px;"></div>
   </div>
 
   <div id="hint">Loading recall data…</div>
@@ -150,6 +151,16 @@
         recallFlags[forced] = true;
         console.log(`Demo override: forcing "${forced}" to recalled state`);
       }
+
+      // Render the real, current state directly on-screen — makes it
+      // obvious exactly what data is driving the bottle colors, both for
+      // debugging now and as a legitimate UI element during the demo.
+      const liveStatusEl = document.getElementById("liveStatus");
+      if (liveStatusEl) {
+        liveStatusEl.innerHTML = TRACKED_PRODUCTS.map(
+          (p) => `${p}: <strong>${recallFlags[p] ? "RECALLED" : "safe"}</strong>`
+        ).join("<br/>");
+      }
     }
 
     function init() {
@@ -188,13 +199,16 @@
       function buildShelfGroup() {
         const group = new THREE.Group();
 
-        // Indicator bottles are added to their own subgroup so we can
-        // reposition them once we know the shelf model's real height —
-        // added to `group` immediately so they're visible even before
-        // the model finishes loading.
+        // Indicator bottles sit at a fixed height above the shelf base.
+        // (We previously tried to auto-measure the loaded model's real top
+        // surface via its bounding box, but that produced inconsistent
+        // results across loads on this particular multi-tier model — a
+        // fixed offset is far more predictable for a beginner build.)
         const indicatorGroup = new THREE.Group();
-        indicatorGroup.position.y = 0.11; // sensible default pre-measurement
+        indicatorGroup.position.y = 0.09;
         group.add(indicatorGroup);
+
+        console.log("Building shelf with recallFlags:", JSON.parse(JSON.stringify(recallFlags)));
 
         TRACKED_PRODUCTS.forEach((name, i) => {
           const isRecalled = !!recallFlags[name];
@@ -205,44 +219,25 @@
             })
           );
           const spread = (i - (TRACKED_PRODUCTS.length - 1) / 2) * 0.11;
-          bottle.position.set(spread, 0.04, 0); // half its own height above the group's origin
+          bottle.position.set(spread, 0.04, 0);
           bottle.userData.product = name;
           bottle.userData.recalled = isRecalled;
           indicatorGroup.add(bottle);
         });
 
-        // Shelf base — tries to load your optimized model; falls back to a
-        // simple box so the scene always works even before shelf.glb exists.
+        // Shelf base — tries to load your optimized model at a fixed,
+        // conservative scale; falls back to a simple box if it 404s.
         loader.load(
           "assets/models/shelf.glb",
           (gltf) => {
             const model = gltf.scene;
-
-            // Downloaded models vary wildly in native scale/units, so
-            // measure the real bounding box instead of guessing a fixed
-            // scale factor — this fixes oversized/undersized models.
             const box = new THREE.Box3().setFromObject(model);
             const size = new THREE.Vector3();
             box.getSize(size);
             const maxDim = Math.max(size.x, size.y, size.z) || 1;
-            const targetSize = 0.4; // ~40cm footprint — reasonable for a tabletop AR object
-            model.scale.setScalar(targetSize / maxDim);
-
-            // Recompute bounds after scaling to center it and find its
-            // actual top surface for the indicator bottles.
-            const scaledBox = new THREE.Box3().setFromObject(model);
-            const center = new THREE.Vector3();
-            scaledBox.getCenter(center);
-            model.position.x -= center.x;
-            model.position.z -= center.z;
-            model.position.y -= scaledBox.min.y; // sit flush on the detected surface
-
+            model.scale.setScalar(0.15 / maxDim); // small, fixed real-world footprint
+            model.position.y = 0; // sits at the reticle surface; ignore exact base offset
             group.add(model);
-
-            // Move the indicator row to rest just above the model's real
-            // top surface, whatever height that turned out to be.
-            const modelHeight = scaledBox.max.y - scaledBox.min.y;
-            indicatorGroup.position.y = modelHeight + 0.01;
           },
           undefined,
           () => {
@@ -252,7 +247,6 @@
             );
             base.position.y = 0.015;
             group.add(base);
-            indicatorGroup.position.y = 0.03 + 0.01;
           }
         );
 
