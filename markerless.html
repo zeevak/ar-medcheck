@@ -73,13 +73,21 @@
     }, 6000);
   </script>
 
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./vendor/three/build/three.module.js"
+    }
+  }
+  </script>
+
   <script src="js/fda-fetch.js"></script>
   <script type="module">
     window.__arModuleStarted = true;
 
-    import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
-    import { ARButton } from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/webxr/ARButton.js";
-    import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js";
+    import * as THREE from "three";
+    import { ARButton } from "./vendor/three/jsm/webxr/ARButton.js";
+    import { GLTFLoader } from "./vendor/three/jsm/loaders/GLTFLoader.js";
 
     const hintEl = document.getElementById("hint");
     const unsupportedEl = document.getElementById("unsupported");
