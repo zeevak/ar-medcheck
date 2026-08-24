@@ -82,6 +82,7 @@
   </script>
 
   <script src="js/fda-fetch.js"></script>
+  <script src="js/audio-cues.js"></script>
   <script type="module">
     window.__arModuleStarted = true;
 
@@ -119,9 +120,17 @@
 
     async function loadRecallData() {
       try {
-        const records = await fetchRecalls({ limit: 20 });
-        recallFlags = matchRecalledProducts(TRACKED_PRODUCTS, records);
-        console.log("Recall flags:", recallFlags);
+        // Check each tracked product directly against openFDA, rather than
+        // hoping its name happens to appear in a generic recent-records
+        // batch — this is the actual "does THIS product have a live
+        // recall" check the feature is meant to demonstrate.
+        const results = await Promise.all(
+          TRACKED_PRODUCTS.map((name) => fetchRecalls({ searchTerm: name, limit: 5 }))
+        );
+        TRACKED_PRODUCTS.forEach((name, i) => {
+          recallFlags[name] = results[i].length > 0;
+        });
+        console.log("Recall flags (live, per-product):", recallFlags);
         hintEl.textContent = "Data loaded — tap a surface to place the shelf";
       } catch (err) {
         console.error("FDA fetch failed, defaulting to all-safe state:", err);
@@ -129,6 +138,17 @@
         // AR demo — assume no known recalls rather than crashing the scene.
         TRACKED_PRODUCTS.forEach((p) => (recallFlags[p] = false));
         hintEl.textContent = "Live data unavailable — showing default state";
+      }
+
+      // Optional demo-reliability override: append ?forceRecall=ibuprofen
+      // to the URL to force one product red regardless of live results —
+      // useful for guaranteeing a visible "recall" state during a live
+      // presentation without faking the underlying data pipeline.
+      const params = new URLSearchParams(window.location.search);
+      const forced = params.get("forceRecall");
+      if (forced && TRACKED_PRODUCTS.includes(forced)) {
+        recallFlags[forced] = true;
+        console.log(`Demo override: forcing "${forced}" to recalled state`);
       }
     }
 
@@ -168,26 +188,14 @@
       function buildShelfGroup() {
         const group = new THREE.Group();
 
-        // Shelf base — tries to load your optimized model; falls back to a
-        // simple box so the scene always works even before shelf.glb exists.
-        loader.load(
-          "assets/models/shelf.glb",
-          (gltf) => {
-            gltf.scene.scale.set(0.3, 0.3, 0.3);
-            group.add(gltf.scene);
-          },
-          undefined,
-          () => {
-            const base = new THREE.Mesh(
-              new THREE.BoxGeometry(0.4, 0.03, 0.15),
-              new THREE.MeshStandardMaterial({ color: 0xd7cba6 })
-            );
-            base.position.y = 0.05;
-            group.add(base);
-          }
-        );
+        // Indicator bottles are added to their own subgroup so we can
+        // reposition them once we know the shelf model's real height —
+        // added to `group` immediately so they're visible even before
+        // the model finishes loading.
+        const indicatorGroup = new THREE.Group();
+        indicatorGroup.position.y = 0.11; // sensible default pre-measurement
+        group.add(indicatorGroup);
 
-        // One indicator "bottle" per tracked product, colored by recall status.
         TRACKED_PRODUCTS.forEach((name, i) => {
           const isRecalled = !!recallFlags[name];
           const bottle = new THREE.Mesh(
@@ -197,11 +205,56 @@
             })
           );
           const spread = (i - (TRACKED_PRODUCTS.length - 1) / 2) * 0.11;
-          bottle.position.set(spread, 0.11, 0);
+          bottle.position.set(spread, 0.04, 0); // half its own height above the group's origin
           bottle.userData.product = name;
           bottle.userData.recalled = isRecalled;
-          group.add(bottle);
+          indicatorGroup.add(bottle);
         });
+
+        // Shelf base — tries to load your optimized model; falls back to a
+        // simple box so the scene always works even before shelf.glb exists.
+        loader.load(
+          "assets/models/shelf.glb",
+          (gltf) => {
+            const model = gltf.scene;
+
+            // Downloaded models vary wildly in native scale/units, so
+            // measure the real bounding box instead of guessing a fixed
+            // scale factor — this fixes oversized/undersized models.
+            const box = new THREE.Box3().setFromObject(model);
+            const size = new THREE.Vector3();
+            box.getSize(size);
+            const maxDim = Math.max(size.x, size.y, size.z) || 1;
+            const targetSize = 0.4; // ~40cm footprint — reasonable for a tabletop AR object
+            model.scale.setScalar(targetSize / maxDim);
+
+            // Recompute bounds after scaling to center it and find its
+            // actual top surface for the indicator bottles.
+            const scaledBox = new THREE.Box3().setFromObject(model);
+            const center = new THREE.Vector3();
+            scaledBox.getCenter(center);
+            model.position.x -= center.x;
+            model.position.z -= center.z;
+            model.position.y -= scaledBox.min.y; // sit flush on the detected surface
+
+            group.add(model);
+
+            // Move the indicator row to rest just above the model's real
+            // top surface, whatever height that turned out to be.
+            const modelHeight = scaledBox.max.y - scaledBox.min.y;
+            indicatorGroup.position.y = modelHeight + 0.01;
+          },
+          undefined,
+          () => {
+            const base = new THREE.Mesh(
+              new THREE.BoxGeometry(0.4, 0.03, 0.15),
+              new THREE.MeshStandardMaterial({ color: 0xd7cba6 })
+            );
+            base.position.y = 0.015;
+            group.add(base);
+            indicatorGroup.position.y = 0.03 + 0.01;
+          }
+        );
 
         return group;
       }
@@ -218,6 +271,17 @@
           shelf.position.setFromMatrixPosition(reticle.matrix);
           shelf.quaternion.setFromRotationMatrix(reticle.matrix);
           scene.add(shelf);
+
+          const hasRecall = TRACKED_PRODUCTS.some((p) => recallFlags[p]);
+          if (hasRecall) {
+            window.playAlertChime && window.playAlertChime();
+            hintEl.textContent = "Recall detected on this shelf";
+            hintEl.style.background = "rgba(194,59,59,0.9)";
+          } else {
+            window.playSuccessChime && window.playSuccessChime();
+            hintEl.textContent = "Shelf placed — no active recalls";
+            hintEl.style.background = "rgba(31,122,77,0.9)";
+          }
         });
         scene.add(controller);
       }
