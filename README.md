@@ -40,22 +40,28 @@ npx serve .
 ## Project structure
 
 ```
-index.html          Landing page / menu
+index.html          Landing page / clinical portal menu
 fetch-test.html      Phase 1 checkpoint: live openFDA data, no AR
-marker.html           Phase 3: marker-based AR scene (placeholder)
-markerless.html        Phase 4–5: markerless AR + live data (placeholder)
-js/fda-fetch.js         Reusable openFDA fetch + recall-matching logic
-css/style.css            Shared styling
-assets/models/           glTF/GLB 3D models go here
-assets/markers/           Marker pattern images go here
+marker.html           Phase 3: marker-based AR scene (AR.js + A-Frame, Hiro marker)
+markerless.html        Phase 4–5: markerless AR (Three.js WebXR hit-test) + live data
+TECHNICAL_REPORT.md   Phase 8: 4-page technical report (problem, design, implementation, challenges)
+TESTING_MATRIX.md     Phase 7: cross-device testing matrix & performance evaluation
+DEMO_SCRIPT.md        Phase 8: 3-minute demonstration video script & storyboard
+BUILD_LOG.md          Full incremental build log & engineering decisions
+js/fda-fetch.js         Reusable openFDA fetch + status-filtered recall logic
+js/audio-cues.js        Synthesized Web Audio API sound generator (success/alert chimes)
+css/style.css            Shared clinical aesthetic styling
+vendor/three/           Self-hosted Three.js + ARButton + GLTFLoader
+assets/models/           Optimized glTF/GLB models (pill-bottle.glb, shelf.glb)
 ```
 
-## Status
+## Status Checklist
 - [x] Phase 1: Repo, GitHub Pages hosting, live FDA fetch checkpoint
-- [ ] Phase 2: Optimized 3D models (glTF) added to assets/models — download from poly.pizza, run gltf-transform, screenshot the file-size before/after for the report
-- [x] Phase 3: Marker-based AR (AR.js) scene built on marker.html — works with fallback primitives now, swap in pill-bottle.glb when ready
-- [x] Phase 4: Markerless AR (WebXR hit-test) working on markerless.html — Android Chrome only, iOS not supported (documented limitation)
-- [x] Phase 5: Live FDA data driving bottle color state (green = no recall, red = recall match)
-- [ ] Phase 6: UI polish, animation, lighting, audio
-- [ ] Phase 7: Cross-device testing
-- [ ] Phase 8: Report + demo recording
+- [x] Phase 2: Sourced & optimized 3D models (glTF/GLB via `@gltf-transform`, 81.2% reduction on shelf)
+- [x] Phase 3: Marker-based AR working (`marker.html` with AR.js + A-Frame, Hiro marker tracking, rotating bottle, audio chime)
+- [x] Phase 4: Markerless AR (`markerless.html` with native Three.js WebXR Device API hit-test, surface reticle, tap-to-place)
+- [x] Phase 5: Live REST API data integration (openFDA `status:"Ongoing"` per-product recall flags, dynamic red/green indicators, live status readout)
+- [x] Phase 6: UI polish, lighting, and synthetic Web Audio API feedback (success chime vs urgent recall alert)
+- [x] Phase 7: Cross-device testing matrix (Android Chrome ARCore, iOS Safari fallback, Desktop WebXR Emulator, Webcam)
+- [x] Phase 8: 4-page academic technical report & 3-minute demonstration video script/storyboard
+

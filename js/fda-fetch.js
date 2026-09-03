@@ -14,13 +14,23 @@ const FDA_ENDPOINT = "https://api.fda.gov/drug/enforcement.json";
  * @param {Object} options
  * @param {string} [options.searchTerm] - e.g. a product name to filter by (openFDA search syntax)
  * @param {number} [options.limit] - how many records to pull
+ * @param {boolean} [options.onlyOngoing] - filter for actively ongoing recalls only (default true)
  * @returns {Promise<Array<{product: string, reason: string, status: string, date: string, classification: string}>>}
  */
-async function fetchRecalls({ searchTerm = "", limit = 10 } = {}) {
+async function fetchRecalls({ searchTerm = "", limit = 10, onlyOngoing = true } = {}) {
   const params = new URLSearchParams();
-  if (searchTerm) {
-    // openFDA field search syntax, e.g. product_description:"ibuprofen"
-    params.set("search", `product_description:"${searchTerm}"`);
+  
+  let query = "";
+  if (searchTerm && onlyOngoing) {
+    query = `product_description:"${searchTerm}" AND status:"Ongoing"`;
+  } else if (searchTerm) {
+    query = `product_description:"${searchTerm}"`;
+  } else if (onlyOngoing) {
+    query = `status:"Ongoing"`;
+  }
+
+  if (query) {
+    params.set("search", query);
   }
   params.set("limit", String(limit));
 

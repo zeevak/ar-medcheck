@@ -6,6 +6,7 @@
   <title>Marker-Based AR — AR MedCheck</title>
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.js"></script>
+  <script src="js/audio-cues.js"></script>
   <style>
     body { margin: 0; overflow: hidden; }
     #overlay {
@@ -20,6 +21,7 @@
       z-index: 999; background: rgba(15,26,22,0.85); color: #fff;
       padding: 8px 16px; border-radius: 999px; font-family: -apple-system, sans-serif;
       font-size: 12px;
+      transition: background 0.3s ease;
     }
   </style>
 </head>
@@ -37,23 +39,16 @@
     renderer="logarithmicDepthBuffer: true;"
   >
     <a-assets>
-      <!-- Swap this src once your optimized model is in assets/models/ -->
       <a-asset-item id="bottle-model" src="assets/models/pill-bottle.glb"></a-asset-item>
-      <audio id="scan-sound" src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/examples/image-tracking/nft/trex/trex.mp3" preload="auto"></audio>
     </a-assets>
 
     <a-marker preset="hiro" id="hiro-marker" emitevents="true">
-      <!-- Real model (activate once pill-bottle.glb exists in assets/models/) -->
       <a-entity
         gltf-model="#bottle-model"
         scale="0.4 0.4 0.4"
         position="0 0 0"
         animation="property: rotation; to: 0 360 0; loop: true; dur: 6000; easing: linear"
       ></a-entity>
-
-      <!-- Fallback primitive so the scene is visibly working even before the
-           model file is added — comment this a-entity out once your glTF loads. -->
-
     </a-marker>
 
     <a-entity camera></a-entity>
@@ -62,13 +57,13 @@
   <script>
     const marker = document.getElementById("hiro-marker");
     const statusEl = document.getElementById("status");
-    const sound = document.getElementById("scan-sound");
 
     marker.addEventListener("markerFound", () => {
       statusEl.textContent = "Marker detected — prescription label recognized";
       statusEl.style.background = "rgba(31,122,77,0.9)";
-      // Optional audio cue — comment out if the placeholder file feels wrong for your demo.
-      // sound.play();
+      if (window.playSuccessChime) {
+        window.playSuccessChime();
+      }
     });
 
     marker.addEventListener("markerLost", () => {
