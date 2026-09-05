@@ -10,26 +10,17 @@
     body {
       margin: 0;
       min-height: 100vh;
-      background: #0d1a15 url('assets/markerBG.jpg') center center / cover no-repeat;
+      background: linear-gradient(rgba(10, 24, 18, 0.4), rgba(10, 24, 18, 0.65)),
+                  url('assets/markerBG.jpg') center center / cover no-repeat fixed;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       padding: 24px 16px;
-      position: relative;
-    }
-    body::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: rgba(10, 20, 16, 0.65);
-      backdrop-filter: blur(4px);
-      z-index: 1;
     }
     .container {
       position: relative;
-      z-index: 2;
       max-width: 480px;
       width: 100%;
       display: flex;
@@ -41,7 +32,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       color: #fff;
       font-size: 13px;
     }
@@ -52,14 +43,15 @@
       background: rgba(15,26,22,0.85);
       padding: 6px 14px;
       border-radius: 999px;
-      border: 1px solid rgba(159,227,195,0.3);
+      border: 1px solid rgba(159,227,195,0.35);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
     .target-card {
       background: #ffffff;
       color: #10261e;
-      border-radius: 16px;
-      padding: 24px 24px 20px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
+      border-radius: 18px;
+      padding: 20px 22px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.2);
       width: 100%;
       display: flex;
       flex-direction: column;
@@ -78,10 +70,10 @@
       letter-spacing: 0.08em;
       padding: 4px 12px;
       border-radius: 999px;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
     .rx-title {
-      font-size: 20px;
+      font-size: 21px;
       font-weight: 700;
       color: #10261e;
       margin: 0 0 4px;
@@ -89,22 +81,62 @@
     .rx-sub {
       font-size: 12px;
       color: #5c6b64;
-      margin: 0 0 18px;
+      margin: 0 0 14px;
+    }
+    .rx-photo-card {
+      width: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+      border: 1px solid #d7e0da;
+    }
+    .rx-photo {
+      width: 100%;
+      height: 135px;
+      object-fit: cover;
+      object-position: center 35%;
+      display: block;
+    }
+    .rx-photo-caption {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(transparent, rgba(16,38,30,0.85) 60%);
+      padding: 8px 12px 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .rx-photo-tag {
+      background: #1f7a4d;
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
     .marker-frame {
       background: #ffffff;
-      padding: 16px;
+      padding: 14px;
       border-radius: 12px;
       border: 2px dashed #d7e0da;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       box-shadow: 0 4px 16px rgba(0,0,0,0.06);
     }
     .marker-img {
-      width: 260px;
-      height: 260px;
+      width: 230px;
+      height: 230px;
       display: block;
       image-rendering: pixelated;
     }
@@ -112,7 +144,7 @@
       width: 100%;
       background: #f6f8f6;
       border-radius: 10px;
-      padding: 12px 14px;
+      padding: 10px 14px;
       font-size: 11.5px;
       color: #2b3b34;
       display: grid;
@@ -120,13 +152,13 @@
       gap: 6px 12px;
       text-align: left;
       border: 1px solid #e1e8e4;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
     .rx-details div strong {
       color: #0f6b5c;
     }
     .instruction {
-      font-size: 12px;
+      font-size: 11.5px;
       color: #5c6b64;
       line-height: 1.4;
       margin: 0;
@@ -159,10 +191,10 @@
     }
     @media print {
       body { background: #fff !important; padding: 0; }
-      body::before { display: none; }
       .top-bar, .btn-row { display: none; }
       .target-card { box-shadow: none; border: 1px solid #ccc; max-width: 100%; }
-      .marker-img { width: 300px; height: 300px; }
+      .rx-photo { height: 110px; }
+      .marker-img { width: 280px; height: 280px; }
     }
   </style>
 </head>
@@ -178,6 +210,16 @@
       <h1 class="rx-title">Amoxicillin 500mg</h1>
       <p class="rx-sub">Prescription Optical Verification Marker (INTE 42312)</p>
 
+      <!-- Prominent Medication Packaging Photo using markerBG.jpg -->
+      <div class="rx-photo-card">
+        <img src="assets/markerBG.jpg" alt="Prescribed Medication Packaging" class="rx-photo" />
+        <div class="rx-photo-caption">
+          <span>Batch #8492-041 · Physical Medication Package</span>
+          <span class="rx-photo-tag">Verified</span>
+        </div>
+      </div>
+
+      <!-- High-Contrast Optical Marker for AR.js Tracking -->
       <div class="marker-frame">
         <img src="assets/hiro.png" alt="AR MedCheck Prescription Optical Marker" class="marker-img" />
       </div>
@@ -186,15 +228,15 @@
         <div><strong>Rx Number:</strong> 8492-041</div>
         <div><strong>Refills:</strong> 2 Remaining</div>
         <div><strong>Dosage:</strong> 1 cap / 8h</div>
-        <div><strong>Authenticity:</strong> Verified</div>
+        <div><strong>Authenticity:</strong> FDA Verified</div>
       </div>
 
       <p class="instruction">
-        <strong>Presentation Guide:</strong> Keep this target displayed on your laptop/screen, open <code>marker.html</code> on your phone, and point the camera at this marker.
+        <strong>Presentation Guide:</strong> Display this target on your laptop or screen. Open <code>marker.html</code> on your phone camera to inspect the 3D bottle and verify the prescription.
       </p>
 
       <div class="btn-row">
-        <button class="btn-action btn-print" onclick="window.print()">🖨️ Print Marker</button>
+        <button class="btn-action btn-print" onclick="window.print()">🖨️ Print Target</button>
         <a class="btn-action btn-launch" href="marker.html">Open AR Scanner</a>
       </div>
     </div>
