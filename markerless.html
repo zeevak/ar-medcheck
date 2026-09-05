@@ -9,41 +9,30 @@
     * { box-sizing: border-box; }
     body { margin: 0; overflow: hidden; background: #10261e; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
 
-    /* WebXR DOM Overlay Container: Fullscreen, transparent, allows 3D touches to pass through */
-    #overlay-root {
-      position: fixed; inset: 0;
-      pointer-events: none;
-      z-index: 10;
-      overflow: hidden;
-    }
-    #overlay-root > * {
-      pointer-events: auto;
-    }
-
     /* Top Navigation Bar */
     #overlay {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 20;
-      padding: 11px 16px; background: rgba(15,26,22,0.92); color: #fff;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 12px 16px; background: rgba(15,26,22,0.92); color: #fff;
       font-size: 13px; font-weight: 500;
       display: flex; justify-content: space-between; align-items: center;
       border-bottom: 1px solid rgba(159,227,195,0.18);
-      backdrop-filter: blur(10px);
+      backdrop-filter: blur(8px);
     }
     #overlay a { color: #9fe3c3; text-decoration: none; font-weight: 600; font-size: 12.5px; }
 
     .pill-btn {
-      background: rgba(31,122,77,0.4);
+      background: rgba(31,122,77,0.45);
       border: 1px solid rgba(159,227,195,0.35);
       color: #9fe3c3; border-radius: 999px;
-      padding: 4px 10px; font-size: 11px; font-weight: 600;
+      padding: 3px 10px; font-size: 11px; font-weight: 600;
       cursor: pointer; display: inline-flex; align-items: center; gap: 4px;
       transition: all 0.15s ease;
     }
-    .pill-btn:active { transform: scale(0.95); background: rgba(31,122,77,0.7); }
+    .pill-btn:active { transform: scale(0.95); background: rgba(31,122,77,0.8); }
 
     /* Collapsible Legend (Top Left) */
     #legend {
-      position: fixed; top: 54px; left: 14px; z-index: 22;
+      position: fixed; top: 56px; left: 14px; z-index: 90;
       background: rgba(15,26,22,0.92); color: #fff; border-radius: 12px;
       padding: 8px 12px; font-size: 11px;
       max-width: 250px; border: 1px solid rgba(159,227,195,0.22);
@@ -78,12 +67,12 @@
 
     /* Prescription HUD Card (Top Right) */
     #rxCard {
-      position: fixed; top: 54px; right: 14px; z-index: 28;
-      background: rgba(15,26,22,0.95); color: #fff; border-radius: 14px;
+      position: fixed; top: 56px; right: 14px; z-index: 95;
+      background: rgba(15,26,22,0.96); color: #fff; border-radius: 14px;
       padding: 12px 14px;
       max-width: 280px; width: calc(100vw - 120px);
       border: 1px solid rgba(159,227,195,0.28);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.55);
       backdrop-filter: blur(12px);
       display: none;
       animation: fadeIn 0.25s ease;
@@ -105,7 +94,7 @@
     .rx-title { font-size: 15px; font-weight: 700; margin-bottom: 1px; color: #fff; }
     .rx-brand { font-size: 10.5px; color: #a5c7b7; margin-bottom: 4px; }
     .rx-tier-badge {
-      display: inline-block; font-size: 9.5px; font-weight: 600;
+      display: inline-block; font-size: 9px; font-weight: 600;
       color: #9fe3c3; background: rgba(159,227,195,0.12);
       padding: 2px 7px; border-radius: 999px; margin-bottom: 6px;
       border: 1px solid rgba(159,227,195,0.2);
@@ -136,9 +125,9 @@
     .speak-btn:active { transform: scale(0.95); background: rgba(31,122,77,0.9); }
     .speak-status { font-size: 9.5px; color: #8ba396; font-style: italic; }
 
-    /* Medicine Selection Drawer / Carousel (Bottom) */
+    /* Medicine Selection Drawer (Bottom Carousel) */
     #medDrawer {
-      position: fixed; bottom: 58px; left: 0; right: 0; z-index: 24;
+      position: fixed; bottom: 62px; left: 0; right: 0; z-index: 90;
       display: flex; flex-direction: column; align-items: center;
       pointer-events: none;
     }
@@ -146,7 +135,7 @@
       font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.08em;
       color: #9fe3c3; font-weight: 700; margin-bottom: 6px;
       text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-      background: rgba(10,20,16,0.78); padding: 3px 12px; border-radius: 999px;
+      background: rgba(10,20,16,0.85); padding: 3px 12px; border-radius: 999px;
       border: 1px solid rgba(159,227,195,0.2);
     }
     .med-scroll {
@@ -197,12 +186,12 @@
     .med-card-badge.bad { background: rgba(194,59,59,0.35); color: #ff8b8b; border: 1px solid #c23b3b; }
     .med-card-badge.ok { background: rgba(31,122,77,0.4); color: #72e0a2; border: 1px solid #1f7a4d; }
 
-    /* Bottom / Floating Status Pill */
+    /* Hint Bar */
     #hint {
       position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
-      z-index: 26; background: rgba(15,26,22,0.9); color: #fff;
-      padding: 7px 16px; border-radius: 999px; font-family: -apple-system, sans-serif;
-      font-size: 11.5px; font-weight: 500;
+      z-index: 90; background: rgba(15,26,22,0.9); color: #fff;
+      padding: 8px 18px; border-radius: 999px; font-family: -apple-system, sans-serif;
+      font-size: 12px; font-weight: 500;
       border: 1px solid rgba(159,227,195,0.25);
       box-shadow: 0 4px 16px rgba(0,0,0,0.35);
       white-space: nowrap; text-align: center;
@@ -210,11 +199,10 @@
       pointer-events: none;
     }
 
-    /* Fallback Modal for Unsupported Devices with Simulation Preview */
     #unsupported {
-      position: fixed; inset: 0; z-index: 40; background: rgba(10,20,16,0.97); color: #fff;
+      position: fixed; inset: 0; z-index: 200; background: #10261e; color: #fff;
       display: flex; align-items: center; justify-content: center; text-align: center;
-      padding: 20px;
+      padding: 24px; font-family: -apple-system, sans-serif;
     }
     #unsupported.hidden { display: none; }
 
@@ -224,91 +212,78 @@
   </style>
 </head>
 <body>
-  <div id="overlay-root">
-    <!-- Top Navigation Bar -->
-    <div id="overlay">
-      <div style="display:flex; align-items:center; gap:8px;">
-        <span id="overlay-title">Position ring & tap to place shelf</span>
-        <button id="repositionBtn" style="display:none;" class="pill-btn">↺ Move Shelf</button>
-      </div>
-      <a href="index.html">&larr; Menu</a>
+  <!-- Top Navigation Bar -->
+  <div id="overlay">
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span id="overlay-title">Tap a surface to place the shelf</span>
+      <button id="repositionBtn" style="display:none;" class="pill-btn">↺ Move Shelf</button>
     </div>
-
-    <!-- Collapsible Legend -->
-    <div id="legend">
-      <div id="legendHeader">
-        <span class="legend-title">Live FDA Status</span>
-        <span id="legendToggleIcon" style="font-size:9.5px; color:#8ba396;">▲</span>
-      </div>
-      <div id="legendBody">
-        <div class="sw-row"><span class="sw" style="background:#1f7a4d"></span> Verified Safe</div>
-        <div class="sw-row"><span class="sw" style="background:#c23b3b"></span> FDA Recalled</div>
-        <div id="liveStatus"></div>
-      </div>
-    </div>
-
-    <!-- Prescription HUD Card -->
-    <div id="rxCard">
-      <div class="rx-header">
-        <span class="rx-tag" id="rxLiveTag">● BOTTLE PRESCRIPTION</span>
-        <button id="rxCloseBtn" class="close-btn" title="Close">✕</button>
-      </div>
-      <div class="rx-title" id="rxTitle">Amoxicillin 500mg</div>
-      <div class="rx-brand" id="rxBrand">Moxatag / Oral Capsule</div>
-      <div class="rx-tier-badge" id="rxTierBadge">Top Shelf · Slot 3</div>
-      <div class="rx-meta">
-        <strong>Rx #:</strong> <span id="rxNumber">8492-041</span><br/>
-        <strong>Dosage:</strong> <span id="rxDosage">1 capsule every 8h with water</span><br/>
-        <strong>Refills:</strong> <span id="rxRefills">2 remaining</span>
-      </div>
-      <div class="rx-status-banner bad" id="rxStatusBanner">
-        <div id="rxStatusTitle">⚠️ FDA RECALL ACTIVE</div>
-        <div id="rxStatusReason" style="font-weight:400; font-size:10px; margin-top:2px;">
-          Particulate contamination detected in lot #8492. Do not dispense.
-        </div>
-      </div>
-      <div class="rx-actions">
-        <button id="rxSpeakBtn" class="speak-btn">🔊 Read Aloud</button>
-        <span id="rxSpeakStatus" class="speak-status">Tap to hear Rx</span>
-      </div>
-    </div>
-
-    <!-- Medicine Drawer Carousel -->
-    <div id="medDrawer" style="display:none;">
-      <div class="drawer-title">Tap a Bottle in AR or Choose Below</div>
-      <div class="med-scroll" id="medCarousel"></div>
-    </div>
-
-    <!-- Bottom Status / Hint Capsule -->
-    <div id="hint">Loading recall data…</div>
+    <a href="index.html">&larr; Menu</a>
   </div>
 
-  <!-- Device Support Notice / Desktop Simulation Trigger -->
-  <div id="unsupported" class="hidden">
-    <div style="max-width:440px; background:rgba(15,26,22,0.96); padding:26px 22px; border-radius:16px; border:1px solid rgba(159,227,195,0.25); box-shadow:0 12px 40px rgba(0,0,0,0.6);">
-      <div style="font-size:26px; margin-bottom:8px;">📱 WebXR AR Notice</div>
-      <h2 style="margin:0 0 8px; font-size:17px; color:#fff;">WebXR AR Not Detected on this Browser</h2>
-      <p style="font-size:12.5px; color:#cde3d7; line-height:1.5; margin-bottom:16px;">
-        Real hit-test AR uses Chrome for Android with ARCore.<br/>
-        You can also run our <strong>3D Desktop Simulation</strong> right now to test placing the shelf, tapping bottles, and hearing prescription readouts!
-      </p>
-      <div style="display:flex; flex-direction:column; gap:8px;">
-        <button id="launchSimBtn" style="background:#1f7a4d; color:#fff; border:none; padding:11px 16px; border-radius:10px; font-size:13.5px; font-weight:700; cursor:pointer; box-shadow:0 4px 14px rgba(31,122,77,0.4);">
-          🚀 Launch 3D Simulation Preview
-        </button>
-        <a href="index.html" style="color:#9fe3c3; font-size:12px; text-decoration:none; padding:4px;">&larr; Back to menu</a>
+  <!-- Legend -->
+  <div id="legend">
+    <div id="legendHeader">
+      <span class="legend-title">Live FDA Status</span>
+      <span id="legendToggleIcon" style="font-size:9.5px; color:#8ba396;">▲</span>
+    </div>
+    <div id="legendBody">
+      <div class="sw-row"><span class="sw" style="background:#1f7a4d"></span> Verified Safe</div>
+      <div class="sw-row"><span class="sw" style="background:#c23b3b"></span> FDA Recalled</div>
+      <div id="liveStatus"></div>
+    </div>
+  </div>
+
+  <!-- Prescription HUD Card -->
+  <div id="rxCard">
+    <div class="rx-header">
+      <span class="rx-tag">● BOTTLE PRESCRIPTION</span>
+      <button id="rxCloseBtn" class="close-btn" title="Close">✕</button>
+    </div>
+    <div class="rx-title" id="rxTitle">Amoxicillin 500mg</div>
+    <div class="rx-brand" id="rxBrand">Moxatag / Oral Capsule</div>
+    <div class="rx-tier-badge" id="rxTierBadge">Top Shelf · Slot 3</div>
+    <div class="rx-meta">
+      <strong>Rx #:</strong> <span id="rxNumber">8492-041</span><br/>
+      <strong>Dosage:</strong> <span id="rxDosage">1 capsule every 8h with water</span><br/>
+      <strong>Refills:</strong> <span id="rxRefills">2 remaining</span>
+    </div>
+    <div class="rx-status-banner bad" id="rxStatusBanner">
+      <div id="rxStatusTitle">⚠️ FDA RECALL ACTIVE</div>
+      <div id="rxStatusReason" style="font-weight:400; font-size:10px; margin-top:2px;">
+        Particulate contamination detected in lot #8492. Do not dispense.
       </div>
+    </div>
+    <div class="rx-actions">
+      <button id="rxSpeakBtn" class="speak-btn">🔊 Read Aloud</button>
+      <span id="rxSpeakStatus" class="speak-status">Tap bottle to read Rx</span>
+    </div>
+  </div>
+
+  <!-- Medicine Target Selection Drawer Carousel -->
+  <div id="medDrawer" style="display:none;">
+    <div class="drawer-title">Tap a Bottle in AR or Choose Below</div>
+    <div class="med-scroll" id="medCarousel"></div>
+  </div>
+
+  <div id="hint">Loading recall data…</div>
+
+  <div id="unsupported" class="hidden">
+    <div>
+      <h2>WebXR AR not supported on this device/browser</h2>
+      <p>Markerless hit-test AR needs Chrome for Android with ARCore.<br/>
+      Try opening this page on an Android phone in Chrome.</p>
+      <a href="index.html" style="color:#9fe3c3">&larr; Back to menu</a>
     </div>
   </div>
 
   <script>
-    // Failsafe watchdog: catches module import issues
     window.__arModuleStarted = false;
     setTimeout(() => {
       if (!window.__arModuleStarted) {
         const hintEl = document.getElementById("hint");
         if (hintEl) {
-          hintEl.textContent = "AR module loading error — please check network connection";
+          hintEl.textContent = "AR module failed to load — check internet connection";
           hintEl.style.background = "rgba(194,59,59,0.9)";
         }
       }
@@ -344,7 +319,7 @@
       hintEl.style.background = "rgba(194,59,59,0.9)";
     });
 
-    // ---- 1. Clinical Medicine Catalog with Prescription Data ----
+    // Clinical Prescription Catalog
     const MEDICINES_DATA = {
       amoxicillin: {
         id: "amoxicillin",
@@ -357,7 +332,7 @@
         slot: 3,
         defaultStatus: "recalled",
         defaultReason: "Particulate contamination detected in lot #8492. Do not dispense.",
-        safeReason: "Lot #8492 compliant with USP dissolution & purity standards. No active recalls."
+        safeReason: "Lot #8492 verified compliant with USP dissolution & purity standards. No active recalls."
       },
       paracetamol: {
         id: "paracetamol",
@@ -426,7 +401,6 @@
       }
     };
 
-    // Cabinet Tier Layout
     const CABINET_TIERS = [
       {
         name: "Top Shelf",
@@ -443,20 +417,18 @@
     ];
 
     const TRACKED_PRODUCTS = CABINET_TIERS.flatMap((t) => t.products);
-    let recallFlags = {};      // productName -> boolean
-    let recallDetails = {};    // productName -> { reason, status, date }
+    let recallFlags = {};
+    let recallDetails = {};
 
-    // State Variables
     let isShelfPlaced = false;
-    let placedShelfGroup = null;
+    let placedShelf = null;
     let currentSelectedId = null;
-    let interactiveObjects = []; // Meshes tested for raycasting
-    let bottleMap = {};          // productId -> { bottleGroup, body, cap, hitMesh, ... }
+    let interactiveObjects = [];
+    let bottleMap = {};
     let haloRing = null;
     let floatingBadge = null;
-    let lastSelectTime = 0;
 
-    // Legend toggle behavior
+    // Toggle legend accordion
     const legendHeader = document.getElementById("legendHeader");
     const legendBody = document.getElementById("legendBody");
     const legendToggleIcon = document.getElementById("legendToggleIcon");
@@ -467,7 +439,15 @@
       });
     }
 
-    // ---- 2. Fetch Live openFDA Drug Recall Data ----
+    if (!navigator.xr) {
+      unsupportedEl.classList.remove("hidden");
+    } else {
+      navigator.xr.isSessionSupported("immersive-ar").then((supported) => {
+        if (!supported) unsupportedEl.classList.remove("hidden");
+        else init();
+      });
+    }
+
     async function loadRecallData() {
       try {
         const results = await Promise.all(
@@ -479,51 +459,48 @@
           if (hits.length > 0) {
             recallDetails[name] = {
               reason: hits[0].reason || MEDICINES_DATA[name].defaultReason,
-              status: hits[0].status,
-              classification: hits[0].classification
+              status: hits[0].status
             };
           }
         });
         hintEl.textContent = "Data loaded — tap a surface to place the shelf";
       } catch (err) {
-        console.warn("FDA fetch failed, using clinical defaults:", err);
+        console.error("FDA fetch failed, defaulting to catalog state:", err);
         TRACKED_PRODUCTS.forEach((p) => {
           recallFlags[p] = MEDICINES_DATA[p].defaultStatus === "recalled";
         });
-        hintEl.textContent = "Default recall data ready — tap surface to place shelf";
+        hintEl.textContent = "Live data unavailable — showing default state";
       }
 
-      // Demo override support: ?forceRecall=ibuprofen
       const params = new URLSearchParams(window.location.search);
       const forced = params.get("forceRecall");
       if (forced && TRACKED_PRODUCTS.includes(forced)) {
         recallFlags[forced] = true;
       }
 
-      renderLiveStatusGrid();
+      // Render legend summary
+      const liveStatusEl = document.getElementById("liveStatus");
+      if (liveStatusEl) {
+        liveStatusEl.innerHTML = `
+          <div style="font-weight:600; color:#9fe3c3; margin-bottom:4px; font-size:10px; text-transform:uppercase; letter-spacing:0.06em;">Cabinet Recall Status:</div>
+          <div class="status-grid">
+            ${TRACKED_PRODUCTS.map(
+              (p) => `
+              <div class="status-item">
+                <span>${p}:</span>
+                <strong style="color:${recallFlags[p] ? '#ff7575' : '#5cd68d'}">
+                  ${recallFlags[p] ? "RECALLED" : "safe"}
+                </strong>
+              </div>`
+            ).join("")}
+          </div>
+        `;
+      }
+
       renderMedDrawer();
     }
 
-    function renderLiveStatusGrid() {
-      const liveStatusEl = document.getElementById("liveStatus");
-      if (!liveStatusEl) return;
-      liveStatusEl.innerHTML = `
-        <div style="font-weight:600; color:#9fe3c3; margin-bottom:4px; font-size:9.5px; text-transform:uppercase; letter-spacing:0.06em;">Cabinet Recall Summary:</div>
-        <div class="status-grid">
-          ${TRACKED_PRODUCTS.map(
-            (p) => `
-            <div class="status-item">
-              <span style="color:#d0e6dc;">${p}:</span>
-              <strong style="color:${recallFlags[p] ? '#ff7575' : '#5cd68d'}">
-                ${recallFlags[p] ? "RECALLED" : "safe"}
-              </strong>
-            </div>`
-          ).join("")}
-        </div>
-      `;
-    }
-
-    // ---- 3. Render Medicine Drawer Carousel ----
+    // Render Drawer Carousel
     function renderMedDrawer() {
       const carouselEl = document.getElementById("medCarousel");
       if (!carouselEl) return;
@@ -545,20 +522,19 @@
         `;
         card.addEventListener("click", (e) => {
           e.stopPropagation();
-          triggerBottleSelection(id, "drawer");
+          selectBottle(id, true);
         });
         carouselEl.appendChild(card);
       });
     }
 
-    // ---- 4. 3D Billboard Sprite Badge Generator ----
+    // Dynamic 3D Billboard Sprite Badge
     function createBadgeTexture(name, subtext, isRecalled) {
       const canvas = document.createElement("canvas");
       canvas.width = 256;
       canvas.height = 128;
       const ctx = canvas.getContext("2d");
 
-      // Rounded background box
       const r = 16, x = 4, y = 4, w = 248, h = 120;
       ctx.beginPath();
       ctx.moveTo(x + r, y);
@@ -578,18 +554,15 @@
       ctx.strokeStyle = isRecalled ? "#ff4d4d" : "#2ed573";
       ctx.stroke();
 
-      // Status header
       ctx.fillStyle = isRecalled ? "#ff7575" : "#5cd68d";
       ctx.font = "bold 20px -apple-system, sans-serif";
       ctx.textAlign = "center";
       ctx.fillText(isRecalled ? "⚠️ RECALLED" : "✓ SAFE TO DISPENSE", 128, 42);
 
-      // Drug Name
       ctx.fillStyle = "#ffffff";
       ctx.font = "bold 22px -apple-system, sans-serif";
       ctx.fillText(name, 128, 76);
 
-      // Subtext
       ctx.fillStyle = "#9fe3c3";
       ctx.font = "14px -apple-system, sans-serif";
       ctx.fillText(subtext || "Rx VERIFIED", 128, 104);
@@ -599,49 +572,37 @@
       return texture;
     }
 
-    // ---- 5. Text-to-Speech (Web Speech API) ----
+    // Speech Synthesis
     function speakPrescription(med, isRecalled, reason) {
-      if (!("speechSynthesis" in window)) {
-        console.warn("Web Speech API not supported");
-        return;
-      }
+      if (!("speechSynthesis" in window)) return;
       try {
         window.speechSynthesis.cancel();
-
         const statusPhrase = isRecalled
           ? `Warning: Active FDA recall. ${reason}. Do not dispense.`
-          : `FDA verified safe to dispense. Compliant with quality standards.`;
-
-        const speechText = `Prescription for ${med.name}. ${med.brand}. ${statusPhrase} Dosage instructions: ${med.dosage}. Prescribed refills: ${med.refills}.`;
+          : `Verified safe to dispense. Compliant with quality standards.`;
+        const speechText = `Prescription for ${med.name}. ${med.brand}. ${statusPhrase} Dosage instructions: ${med.dosage}. Refills: ${med.refills}.`;
 
         const utterance = new SpeechSynthesisUtterance(speechText);
         utterance.rate = 0.96;
         utterance.pitch = 1.0;
 
         const speakStatusEl = document.getElementById("rxSpeakStatus");
-        if (speakStatusEl) speakStatusEl.textContent = "Speaking aloud…";
+        if (speakStatusEl) speakStatusEl.textContent = "Reading prescription aloud…";
 
         utterance.onend = () => {
           if (speakStatusEl) speakStatusEl.textContent = "Readout complete";
         };
         utterance.onerror = () => {
-          if (speakStatusEl) speakStatusEl.textContent = "Tap to read Rx";
+          if (speakStatusEl) speakStatusEl.textContent = "Tap bottle to read Rx";
         };
 
         window.speechSynthesis.speak(utterance);
       } catch (err) {
-        console.warn("Speech synthesis error:", err);
+        console.warn("TTS error:", err);
       }
     }
 
-    // ---- 6. Bottle Selection & Rx Card Display ----
-    function triggerBottleSelection(productId, source = "tap") {
-      const now = performance.now();
-      if (now - lastSelectTime < 300 && currentSelectedId === productId) return;
-      lastSelectTime = now;
-      selectBottle(productId, true);
-    }
-
+    // Bottle Selection Logic
     function selectBottle(id, playAudio = true) {
       const med = MEDICINES_DATA[id];
       if (!med) return;
@@ -650,12 +611,11 @@
       const isRecalled = !!recallFlags[id];
       const recallReason = recallDetails[id]?.reason || (isRecalled ? med.defaultReason : med.safeReason);
 
-      // 1. 3D In-Scene Visual Highlighting
+      // 1. Update 3D Visual Feedback on Bottle
       const bottleInfo = bottleMap[id];
       if (bottleInfo && bottleInfo.bottleGroup) {
         const group = bottleInfo.bottleGroup;
 
-        // 3D Base Halo Ring
         if (!haloRing) {
           haloRing = new THREE.Mesh(
             new THREE.RingGeometry(0.013, 0.020, 32).rotateX(-Math.PI / 2),
@@ -671,7 +631,6 @@
         haloRing.material.color.setHex(isRecalled ? 0xff4757 : 0x2ed573);
         group.add(haloRing);
 
-        // 3D Floating Billboard Sprite
         if (!floatingBadge) {
           const badgeMat = new THREE.SpriteMaterial({ transparent: true, depthTest: false });
           floatingBadge = new THREE.Sprite(badgeMat);
@@ -687,14 +646,13 @@
         floatingBadge.visible = true;
         group.add(floatingBadge);
 
-        // Quick tactile bounce animation
-        group.scale.set(1.16, 1.16, 1.16);
+        group.scale.set(1.15, 1.15, 1.15);
         setTimeout(() => {
           if (group) group.scale.set(1, 1, 1);
         }, 220);
       }
 
-      // 2. Update Carousel Drawer Active Card
+      // 2. Highlight Active Carousel Drawer Card
       document.querySelectorAll(".med-card").forEach((card) => card.classList.remove("active"));
       const activeCard = document.getElementById(`med-card-${id}`);
       if (activeCard) {
@@ -702,7 +660,7 @@
         activeCard.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
       }
 
-      // 3. Populate and Show Prescription HUD Card
+      // 3. Update Prescription HUD Card
       const rxCard = document.getElementById("rxCard");
       if (rxCard) {
         rxCard.classList.add("active");
@@ -724,11 +682,9 @@
         if (speakStatus) speakStatus.textContent = "Reading prescription aloud…";
       }
 
-      // 4. Update HUD Hint Bar
       hintEl.textContent = `Inspecting ${med.name} — ${isRecalled ? "RECALLED ⚠️" : "SAFE ✓"}`;
       hintEl.style.background = isRecalled ? "rgba(194,59,59,0.95)" : "rgba(31,122,77,0.95)";
 
-      // 5. Play Auditory Feedback Chimes
       if (playAudio) {
         if (isRecalled && window.playAlertChime) {
           window.playAlertChime();
@@ -737,11 +693,9 @@
         }
       }
 
-      // 6. Speak Prescription Aloud
       speakPrescription(med, isRecalled, recallReason);
     }
 
-    // Rx Card Controls
     document.getElementById("rxCloseBtn")?.addEventListener("click", (e) => {
       e.stopPropagation();
       if ("speechSynthesis" in window) window.speechSynthesis.cancel();
@@ -759,7 +713,6 @@
       }
     });
 
-    // Helper: Identify bottle ID from raycast intersection
     function getBottleIdFromIntersect(obj) {
       let curr = obj;
       while (curr) {
@@ -771,8 +724,7 @@
       return null;
     }
 
-    // ---- 7. Three.js Scene Setup ----
-    function init(isDesktopSimulation = false) {
+    function init() {
       loadRecallData();
 
       const scene = new THREE.Scene();
@@ -783,18 +735,19 @@
       const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       renderer.setPixelRatio(window.devicePixelRatio);
       renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.xr.enabled = !isDesktopSimulation;
+      renderer.xr.enabled = true;
       document.body.appendChild(renderer.domElement);
 
-      const light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.4);
+      // EXACT standard ARButton initialization from 3d03c26
+      document.body.appendChild(
+        ARButton.createButton(renderer, { requiredFeatures: ["hit-test"] })
+      );
+
+      const light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.2);
       light.position.set(0.5, 1, 0.25);
       scene.add(light);
 
-      const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-      dirLight.position.set(0, 1.5, 1);
-      scene.add(dirLight);
-
-      // Reticle for surface snapping
+      // Reticle: shows where content will be placed
       const reticle = new THREE.Mesh(
         new THREE.RingGeometry(0.06, 0.08, 32).rotateX(-Math.PI / 2),
         new THREE.MeshBasicMaterial({ color: 0x0f6b5c })
@@ -806,7 +759,6 @@
       const loader = new GLTFLoader();
       const raycaster = new THREE.Raycaster();
 
-      // Build 3D Shelf with Bottles & Interactive Hit Cylinders
       function buildShelfGroup() {
         const group = new THREE.Group();
         const tierGroups = [];
@@ -823,7 +775,7 @@
             const isRecalled = !!recallFlags[name];
             const bottleGroup = new THREE.Group();
 
-            // Bottle Body (Height 2.4cm)
+            // Realistic pill bottle body (height 2.4cm)
             const body = new THREE.Mesh(
               new THREE.CylinderGeometry(0.010, 0.010, 0.024, 16),
               new THREE.MeshStandardMaterial({
@@ -835,7 +787,7 @@
             body.position.y = 0.012;
             bottleGroup.add(body);
 
-            // Childproof Cap (Height 0.6cm)
+            // Childproof pharmaceutical cap on top (height 0.6cm)
             const cap = new THREE.Mesh(
               new THREE.CylinderGeometry(0.008, 0.008, 0.006, 16),
               new THREE.MeshStandardMaterial({
@@ -846,7 +798,7 @@
             cap.position.y = 0.024 + 0.003;
             bottleGroup.add(cap);
 
-            // Generous invisible hit cylinder for effortless mobile finger tapping
+            // Hit Target Cylinder (enlarged for touch accuracy)
             const hitMesh = new THREE.Mesh(
               new THREE.CylinderGeometry(0.024, 0.024, 0.065, 12),
               new THREE.MeshBasicMaterial({ visible: false })
@@ -886,7 +838,6 @@
           });
         });
 
-        // Load 3D Shelf GLB Model
         loader.load(
           "assets/models/shelf.glb",
           (gltf) => {
@@ -911,7 +862,6 @@
           },
           undefined,
           () => {
-            // Fallback wooden slab
             const base = new THREE.Mesh(
               new THREE.BoxGeometry(0.14, 0.02, 0.06),
               new THREE.MeshStandardMaterial({ color: 0xd7cba6 })
@@ -926,53 +876,10 @@
         return group;
       }
 
-      // Shelf Placement Action
-      function placeShelf() {
-        if (placedShelfGroup) {
-          scene.remove(placedShelfGroup);
-          placedShelfGroup = null;
-        }
-
-        placedShelfGroup = buildShelfGroup();
-        placedShelfGroup.position.setFromMatrixPosition(reticle.matrix);
-        placedShelfGroup.quaternion.setFromRotationMatrix(reticle.matrix);
-        scene.add(placedShelfGroup);
-
-        isShelfPlaced = true;
-        reticle.visible = false;
-
-        // Reveal reposition button and bottom medicine drawer
-        document.getElementById("repositionBtn").style.display = "inline-flex";
-        document.getElementById("medDrawer").style.display = "flex";
-
-        const titleEl = document.getElementById("overlay-title");
-        if (titleEl) titleEl.textContent = "Cabinet Placed · Tap bottle to read Rx";
-
-        const hasRecall = TRACKED_PRODUCTS.some((p) => recallFlags[p]);
-        if (hasRecall) {
-          window.playAlertChime && window.playAlertChime();
-          hintEl.textContent = "Cabinet placed · Tap any bottle to read prescription";
-          hintEl.style.background = "rgba(194,59,59,0.92)";
-        } else {
-          window.playSuccessChime && window.playSuccessChime();
-          hintEl.textContent = "Cabinet placed · All safe! Tap bottle to read prescription";
-          hintEl.style.background = "rgba(31,122,77,0.92)";
-        }
-
-        // Auto-select the first recalled medicine (or first drug) after 700ms for guided discovery
-        setTimeout(() => {
-          if (isShelfPlaced && !currentSelectedId) {
-            const firstTarget = TRACKED_PRODUCTS.find((p) => recallFlags[p]) || TRACKED_PRODUCTS[0];
-            if (firstTarget) selectBottle(firstTarget, true);
-          }
-        }, 700);
-      }
-
-      // Reposition Shelf Action
       function resetShelfPlacement() {
-        if (placedShelfGroup) {
-          scene.remove(placedShelfGroup);
-          placedShelfGroup = null;
+        if (placedShelf) {
+          scene.remove(placedShelf);
+          placedShelf = null;
         }
         isShelfPlaced = false;
         currentSelectedId = null;
@@ -984,10 +891,10 @@
 
         reticle.visible = true;
         const titleEl = document.getElementById("overlay-title");
-        if (titleEl) titleEl.textContent = "Position ring & tap to place shelf";
+        if (titleEl) titleEl.textContent = "Tap a surface to place the shelf";
 
         hintEl.textContent = "Move camera over surface — tap to place shelf";
-        hintEl.style.background = "rgba(15,26,22,0.9)";
+        hintEl.style.background = "rgba(15,26,22,0.85)";
       }
 
       document.getElementById("repositionBtn")?.addEventListener("click", (e) => {
@@ -995,26 +902,49 @@
         resetShelfPlacement();
       });
 
-      // ---- 8. WebXR AR Session & Controller Setup ----
       let hitTestSource = null;
       let hitTestSourceRequested = false;
 
-      if (!isDesktopSimulation) {
-        const overlayRoot = document.getElementById("overlay-root");
-        const arBtn = ARButton.createButton(renderer, {
-          requiredFeatures: ["hit-test"],
-          optionalFeatures: ["dom-overlay"],
-          domOverlay: { root: overlayRoot }
-        });
-        document.body.appendChild(arBtn);
-
+      controllerSetup();
+      function controllerSetup() {
         const controller = renderer.xr.getController(0);
         controller.addEventListener("select", () => {
           if (!isShelfPlaced) {
             if (!reticle.visible) return;
-            placeShelf();
+            placedShelf = buildShelfGroup();
+            placedShelf.position.setFromMatrixPosition(reticle.matrix);
+            placedShelf.quaternion.setFromRotationMatrix(reticle.matrix);
+            scene.add(placedShelf);
+
+            isShelfPlaced = true;
+            reticle.visible = false;
+
+            document.getElementById("repositionBtn").style.display = "inline-flex";
+            document.getElementById("medDrawer").style.display = "flex";
+
+            const titleEl = document.getElementById("overlay-title");
+            if (titleEl) titleEl.textContent = "Cabinet Placed · Tap bottle to read Rx";
+
+            const hasRecall = TRACKED_PRODUCTS.some((p) => recallFlags[p]);
+            if (hasRecall) {
+              window.playAlertChime && window.playAlertChime();
+              hintEl.textContent = "Cabinet placed · Tap any bottle to read prescription";
+              hintEl.style.background = "rgba(194,59,59,0.9)";
+            } else {
+              window.playSuccessChime && window.playSuccessChime();
+              hintEl.textContent = "Cabinet placed · All safe! Tap bottle to read prescription";
+              hintEl.style.background = "rgba(31,122,77,0.9)";
+            }
+
+            // Auto-guide to first bottle after placement
+            setTimeout(() => {
+              if (isShelfPlaced && !currentSelectedId) {
+                const target = TRACKED_PRODUCTS.find((p) => recallFlags[p]) || TRACKED_PRODUCTS[0];
+                if (target) selectBottle(target, true);
+              }
+            }, 600);
           } else {
-            // Controller 3D Raycasting against bottles
+            // Controller select raycast against placed bottles
             const tempMatrix = new THREE.Matrix4();
             tempMatrix.identity().extractRotation(controller.matrixWorld);
             raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
@@ -1023,60 +953,35 @@
             const intersects = raycaster.intersectObjects(interactiveObjects, true);
             if (intersects.length > 0) {
               const medId = getBottleIdFromIntersect(intersects[0].object);
-              if (medId) triggerBottleSelection(medId, "controller");
+              if (medId) selectBottle(medId, true);
             }
           }
         });
         scene.add(controller);
-      } else {
-        // Desktop Simulation Setup: Pre-position camera & floor
-        camera.position.set(0, 0.22, 0.38);
-        camera.lookAt(0, 0.08, 0);
-
-        const floor = new THREE.Mesh(
-          new THREE.PlaneGeometry(2, 2).rotateX(-Math.PI / 2),
-          new THREE.MeshStandardMaterial({ color: 0x183328, roughness: 0.8 })
-        );
-        floor.position.y = -0.001;
-        scene.add(floor);
-
-        reticle.visible = true;
-        reticle.matrix.makeTranslation(0, 0, 0);
-        hintEl.textContent = "Simulation Mode — Click anywhere to place cabinet";
       }
 
-      // Screen Touch / Pointer Raycasting (dual support for touchscreens)
+      // Screen touch raycasting fallback
       window.addEventListener("pointerdown", (e) => {
         if (e.target.closest("#rxCard, #medDrawer, #overlay, #legend, #ARButton, #unsupported, button, a")) {
           return;
         }
-
-        if (!isShelfPlaced) {
-          if (isDesktopSimulation && reticle.visible) {
-            placeShelf();
-          }
-          return;
-        }
+        if (!isShelfPlaced) return;
 
         const mouse = new THREE.Vector2(
           (e.clientX / window.innerWidth) * 2 - 1,
           -(e.clientY / window.innerHeight) * 2 + 1
         );
-        const activeCam = (!isDesktopSimulation && renderer.xr.isPresenting)
-          ? renderer.xr.getCamera()
-          : camera;
-
-        raycaster.setFromCamera(mouse, activeCam);
+        raycaster.setFromCamera(mouse, camera);
         const intersects = raycaster.intersectObjects(interactiveObjects, true);
         if (intersects.length > 0) {
           const medId = getBottleIdFromIntersect(intersects[0].object);
-          if (medId) triggerBottleSelection(medId, "touch");
+          if (medId) selectBottle(medId, true);
         }
       });
 
-      // Render Loop
+      // EXACT animation loop from 3d03c26 + reticle hide check
       renderer.setAnimationLoop((timestamp, frame) => {
-        if (frame && !isDesktopSimulation) {
+        if (frame) {
           const referenceSpace = renderer.xr.getReferenceSpace();
           const session = renderer.xr.getSession();
 
@@ -1084,7 +989,11 @@
             session.requestReferenceSpace("viewer").then((refSpace) => {
               session.requestHitTestSource({ space: refSpace }).then((source) => {
                 hitTestSource = source;
+              }).catch((err) => {
+                console.warn("requestHitTestSource error:", err);
               });
+            }).catch((err) => {
+              console.warn("requestReferenceSpace error:", err);
             });
             session.addEventListener("end", () => {
               hitTestSourceRequested = false;
@@ -1093,26 +1002,26 @@
             hitTestSourceRequested = true;
           }
 
-          if (hitTestSource && !isShelfPlaced) {
-            const hitTestResults = frame.getHitTestResults(hitTestSource);
-            if (hitTestResults.length) {
-              const hit = hitTestResults[0];
-              reticle.visible = true;
-              reticle.matrix.fromArray(
-                hit.getPose(referenceSpace).transform.matrix
-              );
+          if (hitTestSource) {
+            if (!isShelfPlaced) {
+              const hitTestResults = frame.getHitTestResults(hitTestSource);
+              if (hitTestResults.length) {
+                const hit = hitTestResults[0];
+                reticle.visible = true;
+                reticle.matrix.fromArray(
+                  hit.getPose(referenceSpace).transform.matrix
+                );
+              } else {
+                reticle.visible = false;
+              }
             } else {
               reticle.visible = false;
             }
-          } else if (isShelfPlaced) {
-            reticle.visible = false;
           }
         }
 
-        // Animated halo pulse on selected bottle
-        if (haloRing && currentSelectedId && bottleMap[currentSelectedId]) {
-          const t = performance.now() * 0.003;
-          haloRing.rotation.z = t;
+        if (haloRing && currentSelectedId) {
+          haloRing.rotation.z += 0.02;
         }
 
         renderer.render(scene, camera);
@@ -1122,21 +1031,6 @@
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
-      });
-    }
-
-    // ---- 9. Initial WebXR Capability Check & Desktop Simulation Option ----
-    document.getElementById("launchSimBtn")?.addEventListener("click", () => {
-      unsupportedEl.classList.add("hidden");
-      init(true);
-    });
-
-    if (!navigator.xr) {
-      unsupportedEl.classList.remove("hidden");
-    } else {
-      navigator.xr.isSessionSupported("immersive-ar").then((supported) => {
-        if (!supported) unsupportedEl.classList.remove("hidden");
-        else init(false);
       });
     }
   </script>
