@@ -23,14 +23,50 @@
       font-size: 12px;
       transition: background 0.3s ease;
     }
+    #rxCard {
+      position: fixed; top: 60px; right: 16px; z-index: 999;
+      background: rgba(15,26,22,0.92); color: #fff; border-radius: 12px;
+      padding: 14px 16px; font-family: -apple-system, sans-serif;
+      max-width: 250px; border: 1px solid rgba(159,227,195,0.25);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+      backdrop-filter: blur(6px);
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+    #rxCard.active { display: block; }
+    #rxCard .rx-header {
+      font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em;
+      color: #9fe3c3; font-weight: 700; margin-bottom: 4px;
+    }
+    #rxCard .rx-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+    #rxCard .rx-meta { font-size: 11px; color: #cfe8dc; line-height: 1.5; }
+    #rxCard .rx-verified {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: rgba(31,122,77,0.3); border: 1px solid #1f7a4d;
+      color: #72e0a2; padding: 2px 8px; border-radius: 999px;
+      font-size: 10px; font-weight: 600; margin-top: 8px;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body>
   <div id="overlay">
-    <span>Point camera at the Hiro marker</span>
+    <span>Point camera at the prescription marker</span>
     <a href="index.html">&larr; Menu</a>
   </div>
   <div id="status">Marker not detected</div>
+
+  <!-- Prescription Details HUD Card -->
+  <div id="rxCard">
+    <div class="rx-header">Rx Digital Verification</div>
+    <div class="rx-title">Amoxicillin 500mg</div>
+    <div class="rx-meta">
+      <strong>Rx #:</strong> 8492-041<br/>
+      <strong>Dosage:</strong> 1 capsule every 8h with water<br/>
+      <strong>Refills:</strong> 2 remaining
+    </div>
+    <div class="rx-verified">✓ Authentic Label Recognized</div>
+  </div>
 
   <a-scene
     embedded
@@ -57,10 +93,12 @@
   <script>
     const marker = document.getElementById("hiro-marker");
     const statusEl = document.getElementById("status");
+    const rxCard = document.getElementById("rxCard");
 
     marker.addEventListener("markerFound", () => {
-      statusEl.textContent = "Marker detected — prescription label recognized";
+      statusEl.textContent = "Prescription verified — label locked";
       statusEl.style.background = "rgba(31,122,77,0.9)";
+      rxCard.classList.add("active");
       if (window.playSuccessChime) {
         window.playSuccessChime();
       }
@@ -69,6 +107,7 @@
     marker.addEventListener("markerLost", () => {
       statusEl.textContent = "Marker not detected";
       statusEl.style.background = "rgba(15,26,22,0.85)";
+      rxCard.classList.remove("active");
     });
   </script>
 </body>
