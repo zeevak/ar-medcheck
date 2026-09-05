@@ -166,13 +166,13 @@ The assignment rubric strictly evaluates the candidate's articulation of concret
   ```
   Furthermore, openFDA returns an HTTP 404 response when a query yields zero matches. The fetch wrapper was updated to catch 404 status codes and safely return an empty array `[]` (safe status), preventing network exceptions from crashing the AR loop.
 
-### Challenge 3: Spatial Alignment & Dynamic Bounding-Box Race Conditions
-- **Symptom:** 3D indicator bottles on the placed shelf rendered inconsistently across test runs—occasionally clipping through the shelf mesh, floating in mid-air, or shifting position between cached and uncached page reloads.
-- **Root Cause Analysis:** The initial design attempted to compute the shelf's real-time bounding box (`THREE.Box3().setFromObject(model)`) asynchronously upon GLTF load to position bottles atop the highest shelf tier. However, because GLTF loading occurs asynchronously while the shelf group is anchored immediately upon user tap, a race condition occurred between bounding-box calculation and indicator mesh positioning.
-- **Engineering Strategy & Solution:** Eliminated the dynamic measuring pipeline in favor of a **deterministic spatial anchor hierarchy**:
-  - The indicator bottles were decoupled into a dedicated `indicatorGroup` positioned at a fixed vertical offset (`indicatorGroup.position.y = 0.09`) relative to the shelf group base.
-  - The shelf model was assigned a fixed, conservative scaling factor (`0.15 / maxDim`), ensuring the visual shelf frame consistently nests beneath the bottles regardless of network asset arrival timing.
-  - An on-screen live status HUD (`liveStatus`) was integrated into the legend, explicitly printing the text status (`ibuprofen: RECALLED`, `paracetamol: safe`) to provide unambiguous visual corroboration.
+### Challenge 3: Spatial Rack Orientation & Top-Shelf Bottle Alignment
+- **Symptom:** 3D indicator bottles rendered perpendicular ("oppositely aligned") to the shelf, cutting through the top shelf board and dangling into lower tiers, while the outer bottles floated in empty air outside the shelf frame.
+- **Root Cause Analysis:** In `shelf.glb`, the long axis of the shelf planks was oriented along the model's local **Z axis** (span 2.11m), while the depth was along the **X axis** (span 0.87m). However, the bottle row was arrayed along the X axis (`bottle.position.set(spread, ...)`). Because `shelf.glb` was loaded without rotation, the shelf boards ran front-to-back while the bottles ran left-to-right, resulting in an exact 90° crosswise mismatch. Furthermore, a legacy hardcoded vertical offset (`y = 0.09`) failed to account for the 4-tier rack's scaled 0.15m height, submerging the cylinders through the top shelf board.
+- **Engineering Strategy & Solution:**
+  1. **90-Degree Y-Axis Alignment:** Applied `model.rotation.y = Math.PI / 2` upon GLTF load, aligning the shelf boards along the X axis to face the user directly and match the horizontal bottle spread.
+  2. **Top-Shelf Surface Locking:** Initialized `indicatorGroup.position.y = 0.148` (the exact scaled height of the top shelf board) and dynamically locked it to `box.max.y - (0.021 * scale)` upon model arrival.
+  3. **Realistic Pharmaceutical Geometry:** Replaced crude oversized cylinders with proportional medicine bottles (radius 0.012m, height 0.032m) topped with white childproof caps (height 0.008m), spacing them evenly with `spread = (i - 1) * 0.038` to sit flush and centered on the top level.
 
 ### Challenge 4: Mobile Browser Autoplay Restrictions & Synthetic Audio Architecture
 - **Symptom:** Audio cue playback failed silently on mobile devices, or was blocked by modern browser security policies prohibiting media playback before user interaction.

@@ -199,54 +199,83 @@
       function buildShelfGroup() {
         const group = new THREE.Group();
 
-        // Indicator bottles sit at a fixed height above the shelf base.
-        // (We previously tried to auto-measure the loaded model's real top
-        // surface via its bounding box, but that produced inconsistent
-        // results across loads on this particular multi-tier model — a
-        // fixed offset is far more predictable for a beginner build.)
+        // Indicator group: sits exactly at the top shelf surface level.
+        // For shelf.glb (maxDim ~2.43m, scaled to 0.15m), the top shelf board is at y = 0.148m.
         const indicatorGroup = new THREE.Group();
-        indicatorGroup.position.y = 0.09;
+        indicatorGroup.position.y = 0.148;
         group.add(indicatorGroup);
 
         console.log("Building shelf with recallFlags:", JSON.parse(JSON.stringify(recallFlags)));
 
         TRACKED_PRODUCTS.forEach((name, i) => {
           const isRecalled = !!recallFlags[name];
-          const bottle = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.025, 0.025, 0.08, 16),
+          const bottleGroup = new THREE.Group();
+
+          // Realistic pill bottle body
+          const body = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.012, 0.012, 0.032, 16),
             new THREE.MeshStandardMaterial({
               color: isRecalled ? 0xc23b3b : 0x1f7a4d,
+              roughness: 0.3,
+              metalness: 0.1,
             })
           );
-          const spread = (i - (TRACKED_PRODUCTS.length - 1) / 2) * 0.11;
-          bottle.position.set(spread, 0.04, 0);
-          bottle.userData.product = name;
-          bottle.userData.recalled = isRecalled;
-          indicatorGroup.add(bottle);
+          body.position.y = 0.016; // base sits at y = 0
+          bottleGroup.add(body);
+
+          // Childproof pharmaceutical cap on top
+          const cap = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.009, 0.009, 0.008, 16),
+            new THREE.MeshStandardMaterial({
+              color: 0xf4f7f5,
+              roughness: 0.5,
+            })
+          );
+          cap.position.y = 0.032 + 0.004;
+          bottleGroup.add(cap);
+
+          // Spread bottles along X (left-to-right along the length of the top shelf)
+          const spread = (i - (TRACKED_PRODUCTS.length - 1) / 2) * 0.038;
+          bottleGroup.position.set(spread, 0, 0);
+          bottleGroup.userData.product = name;
+          bottleGroup.userData.recalled = isRecalled;
+          indicatorGroup.add(bottleGroup);
         });
 
-        // Shelf base — tries to load your optimized model at a fixed,
-        // conservative scale; falls back to a simple box if it 404s.
+        // Shelf base — loads the model, rotates 90 deg so the front faces the user
+        // and shelves run along X, perfectly matching the bottle row.
         loader.load(
           "assets/models/shelf.glb",
           (gltf) => {
             const model = gltf.scene;
+            // Rotate 90 deg around Y so the wide front faces the user (shelves run along X)
+            model.rotation.y = Math.PI / 2;
+
             const box = new THREE.Box3().setFromObject(model);
             const size = new THREE.Vector3();
             box.getSize(size);
             const maxDim = Math.max(size.x, size.y, size.z) || 1;
-            model.scale.setScalar(0.15 / maxDim); // small, fixed real-world footprint
-            model.position.y = 0; // sits at the reticle surface; ignore exact base offset
+            const scale = 0.15 / maxDim; // fixed, realistic footprint
+            model.scale.setScalar(scale);
+
+            // Re-measure after scaling and align feet to y = 0
+            box.setFromObject(model);
+            model.position.y = -box.min.y;
+            box.setFromObject(model);
+
+            // Top shelf plank is 0.021 * scale below the tips of the upright posts
+            indicatorGroup.position.y = box.max.y - (0.021 * scale);
             group.add(model);
           },
           undefined,
           () => {
             const base = new THREE.Mesh(
-              new THREE.BoxGeometry(0.4, 0.03, 0.15),
+              new THREE.BoxGeometry(0.14, 0.02, 0.06),
               new THREE.MeshStandardMaterial({ color: 0xd7cba6 })
             );
-            base.position.y = 0.015;
+            base.position.y = 0.01;
             group.add(base);
+            indicatorGroup.position.y = 0.02;
           }
         );
 

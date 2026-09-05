@@ -153,8 +153,11 @@ WebXR Device API (`hit-test`).
 
 ---
 
-## 8. Bug Fix — Ongoing Recall Filtering & Spatial Anchoring
+## 8. Bug Fix — Ongoing Recall Filtering & Spatial Rack Alignment
 
 - Refined openFDA query with `status:"Ongoing"` to filter out historical closed recalls.
-- Fixed indicator bottle height at `y: 0.09` relative to shelf group to avoid async bounding box race conditions.
 - Added live on-screen text status readout inside legend for complete UX transparency.
+- **Fixed Crosswise Alignment & Height Bug:**
+  - *Symptom:* Bottles were aligned perpendicular ("oppositely aligned") to the shelf, cutting through the top tier and dangling into lower shelves.
+  - *Cause:* In `shelf.glb`, the long axis of the shelves ran along the Z axis, while the bottle spread was placed along the X axis. Furthermore, a hardcoded `y = 0.09` height placed the bottles halfway down into the 0.15m tall 4-tier rack.
+  - *Solution:* Rotated the shelf model 90° (`model.rotation.y = Math.PI / 2`) so its wide front faces the user and shelves run along the X axis. Resized bottles to realistic pharmaceutical proportions with childproof caps, aligned the spread along X (`spread = (i - 1) * 0.038`), and locked `indicatorGroup.position.y` directly to the top shelf surface level (`0.148m`).
