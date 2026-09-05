@@ -78,6 +78,17 @@
       <a-asset-item id="bottle-model" src="assets/models/pill-bottle.glb"></a-asset-item>
     </a-assets>
 
+    <!-- Custom Prescription Marker generated from markerBG.jpg -->
+    <a-marker type="pattern" url="assets/pattern-marker.patt" id="custom-marker" emitevents="true">
+      <a-entity
+        gltf-model="#bottle-model"
+        scale="0.4 0.4 0.4"
+        position="0 0 0"
+        animation="property: rotation; to: 0 360 0; loop: true; dur: 6000; easing: linear"
+      ></a-entity>
+    </a-marker>
+
+    <!-- Standard Hiro Marker fallback -->
     <a-marker preset="hiro" id="hiro-marker" emitevents="true">
       <a-entity
         gltf-model="#bottle-model"
@@ -91,23 +102,28 @@
   </a-scene>
 
   <script>
-    const marker = document.getElementById("hiro-marker");
+    const markers = [
+      document.getElementById("custom-marker"),
+      document.getElementById("hiro-marker")
+    ].filter(Boolean);
     const statusEl = document.getElementById("status");
     const rxCard = document.getElementById("rxCard");
 
-    marker.addEventListener("markerFound", () => {
-      statusEl.textContent = "Prescription verified — label locked";
-      statusEl.style.background = "rgba(31,122,77,0.9)";
-      rxCard.classList.add("active");
-      if (window.playSuccessChime) {
-        window.playSuccessChime();
-      }
-    });
+    markers.forEach(m => {
+      m.addEventListener("markerFound", () => {
+        statusEl.textContent = "Prescription verified — label locked";
+        statusEl.style.background = "rgba(31,122,77,0.9)";
+        rxCard.classList.add("active");
+        if (window.playSuccessChime) {
+          window.playSuccessChime();
+        }
+      });
 
-    marker.addEventListener("markerLost", () => {
-      statusEl.textContent = "Marker not detected";
-      statusEl.style.background = "rgba(15,26,22,0.85)";
-      rxCard.classList.remove("active");
+      m.addEventListener("markerLost", () => {
+        statusEl.textContent = "Marker not detected";
+        statusEl.style.background = "rgba(15,26,22,0.85)";
+        rxCard.classList.remove("active");
+      });
     });
   </script>
 </body>
