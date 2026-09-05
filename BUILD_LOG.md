@@ -161,3 +161,9 @@ WebXR Device API (`hit-test`).
   - *Symptom:* Bottles were aligned perpendicular ("oppositely aligned") to the shelf, cutting through the top tier and dangling into lower shelves.
   - *Cause:* In `shelf.glb`, the long axis of the shelves ran along the Z axis, while the bottle spread was placed along the X axis. Furthermore, a hardcoded `y = 0.09` height placed the bottles halfway down into the 0.15m tall 4-tier rack.
   - *Solution:* Rotated the shelf model 90° (`model.rotation.y = Math.PI / 2`) so its wide front faces the user and shelves run along the X axis. Resized bottles to realistic pharmaceutical proportions with childproof caps, aligned the spread along X (`spread = (i - 1) * 0.038`), and locked `indicatorGroup.position.y` directly to the top shelf surface level (`0.148m`).
+- **Multi-Tier Medicine Cabinet Populated:**
+  - Expanded cabinet layout into a multi-tier structure (`CABINET_TIERS`).
+  - Top Shelf: `ibuprofen` (Red), `paracetamol` (Green), `amoxicillin` (Red).
+  - Second Shelf: `lipitor` (Green), `acetaminophen` (Red), `melatonin` (Green).
+  - Preserves all original drugs including acetaminophen, while introducing verified zero-recall medications for a dynamic, visually impressive mix of red and green across both levels.
+  - Refactored on-screen legend into a clean 2-column clinical HUD.
